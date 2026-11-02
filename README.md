@@ -1,75 +1,81 @@
-# Cooking Competition Database (DB-Project-2024)
+# MasterChef Database — Cooking Competition DB
 
-A comprehensive relational database system for managing a cooking competition. This project was developed as part of a university assignment and models complex relationships between chefs, recipes, ingredients, equipment, cuisines, and competition episodes.
+A MySQL database for running a national cooking competition: chefs and their cuisines, recipes with ingredients, equipment and nutritional data, and the competition's episodes with participants, judges and scores. The project covers the full cycle from ER design to the relational schema, indexing, stored procedures, access control and analytical queries.
 
-## Project Structure
+Developed for the *Databases* course (2024), School of Electrical and Computer Engineering, NTUA.
 
-- `masterchef_DDL.sql` – Contains the SQL statements for creating all tables, constraints, views, indexes, triggers, and stored procedures.
-- `masterchef_DML.sql` – Populates the database with sample data.
-- `create_users.sql` – Creates specific MySQL users for accessing the database.
-- Python Scripts:
-  - `episode_generator.py`: Generates mock competition episodes.
-  - `DB_PIC_INSERT.py`: Inserts images into the database.
-  - `show_picture.py`: Retrieves and displays images from the database.
+## Schema
 
-## Main Features
+23 tables, including:
 
-- **Recipes** with difficulty levels, national cuisines, labels, thematic units, and calories.
-- **Chefs** that can specialize in multiple cuisines and serve as judges or participants.
-- **Episodes** featuring multiple participants and judges, where scores are recorded and winners determined.
-- **Detailed relationships** via junction tables (e.g., `contains`, `recipe_equipment`, `is_graded`, etc.).
-- **Indexes** and **forced query plans** to optimize performance for specific analytical queries.
+| Area | Tables |
+|---|---|
+| Chefs | `chef`, `specializes`, `cuisine` |
+| Recipes | `recipe`, `contains`, `ingredient`, `food_group`, `recipe_calories`, `equipment`, `recipe_equipment`, `label`, `recipe_label`, `meal_type`, `recipe_meal_type`, `them_unit`, `recipe_them_unit` |
+| Competition | `episode`, `is_assigned`, `is_graded` |
+| Media | `picture` |
 
+The schema also includes:
 
-## Installation Instructions
+- **34 indexes** that support the analytical queries.
+- **5 stored procedures**:
+  - `calculate_winner`: picks an episode's winner from the judges' scores,
+  - `calory_count`: computes recipe calories from ingredient quantities,
+  - `generate_recipe_them_units`,
+  - `update_assigned_recipe`,
+  - `update_info`: lets chefs update their own data.
+- **Database users with restricted privileges**: an admin account, and per-chef accounts that may only execute the procedures they need.
 
-### 1. Database Setup
+## Repository layout
 
-1. Install MySQL: [https://www.mysql.com/](https://www.mysql.com/)
-2. (Optional) Install MySQL Workbench.
-3. Clone the repository:
-
-```bash
-git clone https://github.com/harrissfiris/DB-Project-2024.git
-cd DB-Project-2024
+```
+manual download/
+  masterchef_DDL.sql     schema: tables, keys, indexes, stored procedures
+  masterchef_DML.sql     sample data
+  create_users.sql       database users and privileges
+Data Tables/             source data as CSV
+queries.sql              analytical queries for the assignment questions (3.1–3.15)
+python_codes/
+  generate_episode.py    generates competition episodes with random assignments and scores
+  DB_PIC_INSERT.py       stores images in the database
+  show_picture.py        reads and displays stored images
+Αναφορά Εργασίας.pdf     project report (in Greek)
 ```
 
-4. Login to MySQL:
+## Setup
+
+Requirements: MySQL 8, and Python 3 for the optional scripts.
 
 ```bash
-mysql -u root -p -h localhost
+git clone https://github.com/harrissfiris/masterchef-db.git
+cd masterchef-db
+mysql -u root -p
 ```
-
-5. Run the SQL scripts:
 
 ```sql
-SOURCE masterchef_DDL.sql;
-SOURCE masterchef_DML.sql;
-SOURCE create_users.sql;
+SOURCE manual download/masterchef_DDL.sql;
+SOURCE manual download/masterchef_DML.sql;
+SOURCE manual download/create_users.sql;
 ```
 
-This creates and populates the `masterchef` database.
-
-### 2. Python Scripts (Optional Features)
-
-#### Set up the environment
+Optional Python scripts:
 
 ```bash
-python3 -m venv myenv
-source myenv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install mysql-connector-python pillow
+python python_codes/generate_episode.py
 ```
 
-#### Run the scripts
+The scripts connect to `localhost` with the `admin` user created by `create_users.sql`.
 
-- `episode_generator.py`: Creates mock episodes.
-- `DB_PIC_INSERT.py`: Inserts images into the `picture` table.
-- `show_picture.py`: Displays stored images from the database.
+## Example queries
 
-## Sample Use Cases
+`queries.sql` answers questions such as:
 
-- Identify chefs with the highest average score.
-- Retrieve recipes by difficulty or cuisine.
-- Track ingredients and calorie information.
-- Determine episode winners and their scores.
-- Display photos associated with recipes or episodes.
+- average score per chef and per cuisine,
+- chefs who never served as judges, and the judges who scored a competitor highest,
+- the most frequent pairs of recipe labels in the competition,
+- the episode with the most equipment, and the most difficult episode of each year,
+- average carbohydrates per year, and food groups never used in a recipe.
+
+Some queries are also given with an alternative execution plan that forces a specific index (`FORCE INDEX`), for comparison.
