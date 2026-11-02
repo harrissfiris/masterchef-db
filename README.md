@@ -1,4 +1,4 @@
-# MasterChef Database — Cooking Competition DB
+# MasterChef Database
 
 A MySQL database for running a national cooking competition: chefs and their cuisines, recipes with ingredients, equipment and nutritional data, and the competition's episodes with participants, judges and scores. The project covers the full cycle from ER design to the relational schema, indexing, stored procedures, access control and analytical queries.
 
@@ -34,7 +34,7 @@ manual download/
   masterchef_DML.sql     sample data
   create_users.sql       database users and privileges
 Data Tables/             source data as CSV
-queries.sql              analytical queries for the assignment questions (3.1–3.15)
+queries.sql              analytical queries for the assignment questions (3.1-3.15)
 python_codes/
   generate_episode.py    generates competition episodes with random assignments and scores
   DB_PIC_INSERT.py       stores images in the database
